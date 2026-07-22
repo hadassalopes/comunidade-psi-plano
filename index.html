@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Plano da Comunidade Psi no Telegram</title>
+  <style>
+    :root {
+      --color-text-primary: #1a1a1a;
+      --color-text-secondary: #5c5c5c;
+      --color-text-tertiary: #8a8a8a;
+      --color-text-info: #1a5f8a;
+      --color-text-warning: #8a6a1a;
+      --color-text-success: #1a6a3a;
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f5f5f5;
+      --color-background-info: #e8f4fc;
+      --color-background-warning: #fff8e6;
+      --color-background-success: #e8f7ef;
+      --color-border-secondary: #d0d0d0;
+      --color-border-tertiary: #e5e5e5;
+      --color-border-info: #5ba3d0;
+      --color-border-warning: #e0b84a;
+      --color-border-success: #4caf7a;
+      --border-radius-md: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f0f2f5;
+      color: var(--color-text-primary);
+      line-height: 1.5;
+    }
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+    .card {
+      background: var(--color-background-primary);
+      border: 0.5px solid var(--color-border-tertiary);
+      border-radius: 12px;
+      padding: 20px 20px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .doc-header { margin-bottom: 1.25rem; }
+    .doc-kicker {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-tertiary);
+      margin: 0 0 6px;
+    }
+    .doc-title {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 0 0 6px;
+      color: var(--color-text-primary);
+    }
+    .doc-lead {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+
+    .step-nav {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 0.5px solid var(--color-border-tertiary);
+    }
+    .step-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: var(--border-radius-md);
+      border: 0.5px solid var(--color-border-secondary);
+      background: var(--color-background-primary);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .step-btn:hover { border-color: var(--color-border-info); color: var(--color-text-info); }
+    .step-btn.active {
+      background: var(--color-background-info);
+      color: var(--color-text-info);
+      border-color: var(--color-border-info);
+      font-weight: 500;
+    }
+
+    .progress { display: flex; gap: 4px; margin-bottom: 1rem; }
+    .progress-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-border-secondary);
+      transition: background 0.2s;
+    }
+    .progress-dot.done { background: var(--color-text-info); }
+
+    .step-content { display: none; }
+    .step-content.active { display: block; }
+    .step-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      margin: 0 0 4px;
+    }
+    .step-sub {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      margin: 0 0 1.5rem;
+    }
+
+    .action {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      align-items: flex-start;
+    }
+    .action-num {
+      min-width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--color-background-info);
+      color: var(--color-text-info);
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+    .action-body { flex: 1; }
+    .action-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      margin-bottom: 3px;
+    }
+    .action-detail {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    .value-box {
+      background: var(--color-background-secondary);
+      border: 0.5px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-md);
+      padding: 10px 14px;
+      margin: 8px 0;
+      font-size: 13px;
+    }
+    .value-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 4px;
+    }
+    .value-row:last-child { margin-bottom: 0; }
+    .value-row span:first-child { color: var(--color-text-secondary); }
+    .value-row span:last-child {
+      font-weight: 500;
+      color: var(--color-text-primary);
+      text-align: right;
+    }
+
+    .tip {
+      background: var(--color-background-warning);
+      border-left: 3px solid var(--color-border-warning);
+      border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--color-text-warning);
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+    .ok {
+      background: var(--color-background-success);
+      border-left: 3px solid var(--color-border-success);
+      border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--color-text-success);
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+    .info {
+      background: var(--color-background-info);
+      border-left: 3px solid var(--color-border-info);
+      border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--color-text-info);
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-tertiary);
+      margin: 1.2rem 0 0.5rem;
+    }
+
+    .notes-box {
+      margin-top: 1.4rem;
+      padding-top: 1rem;
+      border-top: 0.5px solid var(--color-border-tertiary);
+    }
+    .notes-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      margin: 0 0 6px;
+    }
+    .notes-hint {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin: 0 0 8px;
+      line-height: 1.5;
+    }
+    .notes-area {
+      width: 100%;
+      min-height: 96px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      line-height: 1.5;
+      color: var(--color-text-primary);
+      background: #fafafa;
+      border: 0.5px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      resize: vertical;
+    }
+    .notes-area:focus {
+      outline: none;
+      border-color: var(--color-border-info);
+      background: #fff;
+    }
+    .notes-area.tall { min-height: 180px; }
+    .notes-save-hint {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      margin: 6px 0 0;
+    }
+
+    .nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 0.5px solid var(--color-border-tertiary);
+      gap: 8px;
+    }
+    .nav-btn {
+      padding: 8px 16px;
+      font-size: 13px;
+      border-radius: var(--border-radius-md);
+      border: 0.5px solid var(--color-border-secondary);
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+      cursor: pointer;
+    }
+    .nav-btn.next {
+      background: var(--color-background-info);
+      color: var(--color-text-info);
+      border-color: var(--color-border-info);
+    }
+    .nav-btn:hover { opacity: 0.9; }
+    #step-counter {
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      text-align: center;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+    }
+
+    @media (max-width: 520px) {
+      .value-row { flex-direction: column; gap: 2px; }
+      .value-row span:last-child { text-align: left; }
+      .nav-bottom { flex-wrap: wrap; }
+      #step-counter { order: -1; width: 100%; margin-bottom: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="doc-header">
+      <p class="doc-kicker">Proposta para revisão</p>
+      <h1 class="doc-title">Comunidade Psi no Telegram</h1>
+      <p class="doc-lead">Um plano simples para criar um espaço organizado de troca entre psicólogas, psicólogos e estudantes — com salas de assunto, redes sociais e um canal para enviar dúvidas à Gabi.</p>
+    </div>
+
+    <div class="card">
+      <h2 class="sr-only">Plano interativo da comunidade Psi</h2>
+
+      <div class="step-nav" id="nav">
+        <button type="button" class="step-btn active" onclick="goTo(0)">Visão geral</button>
+        <button type="button" class="step-btn" onclick="goTo(1)">1 · O que é</button>
+        <button type="button" class="step-btn" onclick="goTo(2)">2 · Salas</button>
+        <button type="button" class="step-btn" onclick="goTo(3)">3 · Moderação</button>
+        <button type="button" class="step-btn" onclick="goTo(4)">4 · Como testar</button>
+        <button type="button" class="step-btn" onclick="goTo(5)">5 · Sugestões</button>
+      </div>
+
+      <div class="progress" id="progress" aria-hidden="true"></div>
+
+      <!-- STEP 0 -->
+      <div class="step-content active" id="step-0">
+        <p class="step-title">Para que serve este documento</p>
+        <p class="step-sub">Leia no seu ritmo. Use as abas acima ou os botões no final de cada página.</p>
+
+        <div class="ok">Este é um <strong>plano para você avaliar</strong>. Nada precisa ser decidido agora — o objetivo é você entender a ideia, comentar o que gosta e o que mudaria.</div>
+
+        <div class="section-title">Em poucas palavras</div>
+        <div class="action">
+          <div class="action-num">1</div>
+          <div class="action-body">
+            <div class="action-label">Um grupo grande, sem bagunça</div>
+            <div class="action-detail">Em vez de um chat único onde tudo se mistura, o Telegram permite criar “salas” (chamadas de <strong>tópicos</strong>). Cada assunto fica no seu lugar.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">2</div>
+          <div class="action-body">
+            <div class="action-label">Espaço para a comunidade e para você</div>
+            <div class="action-detail">Haverá salas para as pessoas trocarem experiências, compartilharem Instagram/TikTok e também uma sala especial <strong>“Envie sua dúvida para a Gabi”</strong>.
+              <div class="tip" style="margin-top:8px;margin-bottom:0">Obs.: a ideia aqui é obter as dúvidas para gerar conteúdo posteriormente.</div>
+            </div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">3</div>
+          <div class="action-body">
+            <div class="action-label">Moderação facilitada</div>
+            <div class="action-detail">Se alguém enviar algo fora das regras, a mensagem é avisada para a moderação. A equipe de moderação decide se precisa apagar.
+              <div class="tip" style="margin-top:8px;margin-bottom:0">Obs.: teremos um botão para apagar a mensagem sem precisar procurar no chat.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tip">Em cada página deste guia há um espaço <strong>“Suas observações”</strong> para você anotar o que quer adicionar, alterar ou tirar dúvida. Escreva direto no campo — o texto fica salvo neste aparelho enquanto você navega pelas abas. No final, use a aba <strong>Sugestões</strong> para reunir o feedback geral (ou copie o que escreveu e envie de volta).</div>
+
+        <div class="notes-box" data-notes="step-0">
+          <p class="notes-label">Suas observações — Visão geral</p>
+          <p class="notes-hint">O que quer adicionar, alterar ou esclarecer nesta página?</p>
+          <textarea class="notes-area" placeholder="Escreva aqui…"></textarea>
+          <p class="notes-save-hint">Salvo automaticamente neste navegador.</p>
+        </div>
+      </div>
+
+      <!-- STEP 1 -->
+      <div class="step-content" id="step-1">
+        <p class="step-title">O que é o Telegram</p>
+        <p class="step-sub">O básico que importa para este projeto</p>
+
+        <div class="section-title">Três ideias que importam neste projeto</div>
+        <div class="action">
+          <div class="action-num">1</div>
+          <div class="action-body">
+            <div class="action-label">Grupo = a casa da comunidade</div>
+            <div class="action-detail">É o lugar onde as pessoas entram. Pode crescer para milhares de membros. Quase todo mundo fica no mesmo “endereço”, mas conversa em salas diferentes.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">2</div>
+          <div class="action-body">
+            <div class="action-label">Tópico = uma sala de assunto</div>
+            <div class="action-detail">Exemplo: uma sala só de redes sociais, outra “Envie sua dúvida para a Gabi”. Quem entra escolhe a sala e acompanha só o que interessa — sem o barulho de tudo misturado.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">3</div>
+          <div class="action-body">
+            <div class="action-label">Reações = curtidas rápidas</div>
+            <div class="action-detail">Nas mensagens dá para colocar um coração, um joinha etc., sem precisar escrever “obrigada” toda vez. Isso deixa o grupo mais leve.</div>
+          </div>
+        </div>
+
+        <div class="section-title">Por que não só WhatsApp?</div>
+        <div class="value-box">
+          <div class="value-row"><span>Organização por assunto</span><span>Sim (tópicos)</span></div>
+          <div class="value-row"><span>Grupo com mil+ pessoas</span><span>Mais confortável</span></div>
+          <div class="value-row"><span>Moderação com bot</span><span>Mais fácil de automatizar</span></div>
+          <div class="value-row"><span>Link de entrada</span><span>Pode ser público ou por convite</span></div>
+        </div>
+
+        <div class="ok">Você não precisa virar “especialista” em Telegram. A ideia é a comunidade usar; a montagem técnica fica com quem for implementar.</div>
+        <div class="tip">Na próxima aba você vê exatamente quais salas (tópicos) estamos sugerindo — e pode pedir para renomear, juntar ou tirar alguma.</div>
+
+        <div class="notes-box" data-notes="step-1">
+          <p class="notes-label">Suas observações — O que é</p>
+          <p class="notes-hint">O que quer adicionar, alterar ou esclarecer nesta página?</p>
+          <textarea class="notes-area" placeholder="Escreva aqui…"></textarea>
+          <p class="notes-save-hint">Salvo automaticamente neste navegador.</p>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step-content" id="step-2">
+        <p class="step-title">As salas da comunidade</p>
+        <p class="step-sub">Proposta inicial — aberta a ajustes</p>
+
+        <div class="info">Só <strong>administradoras</strong> criam novas salas. Os membros escolhem onde postar e respondem dentro de cada uma. Assim o grupo não vira uma lista infinita de salas vazias.</div>
+
+        <div class="section-title">Salas sugeridas</div>
+
+        <div class="action">
+          <div class="action-num">1</div>
+          <div class="action-body">
+            <div class="action-label">Geral</div>
+            <div class="action-detail">Boas-vindas, avisos importantes e o que for para todo mundo. É a “entrada” da casa.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">2</div>
+          <div class="action-body">
+            <div class="action-label">Redes sociais (Instagram e TikTok)</div>
+            <div class="action-detail">Sala própria para quem quiser compartilhar o perfil, trocar dicas de conteúdo ou se conhecer nas redes. Um lugar claro, sem misturar com dúvidas clínicas ou estudos.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">3</div>
+          <div class="action-body">
+            <div class="action-label">Envie sua dúvida para a Gabi</div>
+            <div class="action-detail">Perguntas direcionadas a você. A comunidade pode acompanhar, e as dúvidas também servem de base para gerar conteúdo depois.
+              <div class="tip" style="margin-top:8px;margin-bottom:0">Obs.: a ideia aqui é obter as dúvidas para gerar conteúdo posteriormente.</div>
+            </div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">4</div>
+          <div class="action-body">
+            <div class="action-label">Estudos e carreira</div>
+            <div class="action-detail">Estágio, TCC, concursos, primeiros atendimentos, caminhos profissionais — a troca entre pares.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">5</div>
+          <div class="action-body">
+            <div class="action-label">Off-topic</div>
+            <div class="action-detail">Conversa leve que não cabe nas outras salas. Ajuda a manter as salas “sérias” mais limpas.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">6</div>
+          <div class="action-body">
+            <div class="action-label">Moderação (só para a equipe)</div>
+            <div class="action-detail">Os membros comuns <strong>não entram</strong> nesta sala (ou não veem o conteúdo). É onde chegam os avisos de mensagens que podem ferir as regras — para a equipe decidir.</div>
+          </div>
+        </div>
+
+        <div class="value-box">
+          <div class="value-row"><span>Quem cria salas novas</span><span>Só a equipe admin</span></div>
+          <div class="value-row"><span>Quem posta nas salas</span><span>Membros (nas salas abertas)</span></div>
+          <div class="value-row"><span>Sala Redes</span><span>Instagram + TikTok</span></div>
+          <div class="value-row"><span>Sala Gabi</span><span>Envie sua dúvida…</span></div>
+          <div class="value-row"><span>Sala Moderação</span><span>Só equipe</span></div>
+        </div>
+
+        <div class="tip">Quer menos salas no começo? Dá para lançar só Geral + Redes + Envie sua dúvida para a Gabi e abrir as outras depois.</div>
+        <div class="ok">Se o nome de alguma sala não combinou com a sua voz/marca, anote abaixo — trocamos antes de montar de verdade.</div>
+
+        <div class="notes-box" data-notes="step-2">
+          <p class="notes-label">Suas observações — Salas</p>
+          <p class="notes-hint">O que quer adicionar, alterar ou esclarecer nesta página?</p>
+          <textarea class="notes-area" placeholder="Escreva aqui…"></textarea>
+          <p class="notes-save-hint">Salvo automaticamente neste navegador.</p>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step-content" id="step-3">
+        <p class="step-title">Como funciona a moderação</p>
+        <p class="step-sub">Aviso para a equipe + botão para apagar (sem caçar a mensagem no chat)</p>
+
+        <div class="ok">No fluxo principal, o sistema <strong>não apaga de primeira</strong>. Ele avisa a moderação. Quem decide apagar é a equipe — com um botão, sem precisar procurar a mensagem no chat.</div>
+
+        <div class="section-title">Passo a passo do fluxo principal</div>
+        <div class="action">
+          <div class="action-num">1</div>
+          <div class="action-body">
+            <div class="action-label">Alguém envia uma mensagem que pode estar fora das regras</div>
+            <div class="action-detail">Exemplos (a definir juntos): spam, link suspeito, divulgação indevida, conteúdo ofensivo, quebra de ética/sigilo etc.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">2</div>
+          <div class="action-body">
+            <div class="action-label">O assistente (bot) avisa na sala Moderação</div>
+            <div class="action-detail">Ele envia uma cópia/resumo da mensagem para a equipe, com o nome de quem enviou e em qual sala estava.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">3</div>
+          <div class="action-body">
+            <div class="action-label">A mensagem original continua visível no grupo</div>
+            <div class="action-detail">Nada some sozinho neste fluxo. Evita apagar por engano e dá tempo de a equipe olhar com calma.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">4</div>
+          <div class="action-body">
+            <div class="action-label">Na Moderação aparece um botão para excluir</div>
+            <div class="action-detail">Se a equipe concluir que a mensagem não pode ficar, clica em <strong>Excluir</strong> — aí sim ela é removida do grupo, sem precisar vasculhar o chat.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">5</div>
+          <div class="action-body">
+            <div class="action-label">Se estiver tudo certo, não precisa fazer nada (ou só marcar como visto)</div>
+            <div class="action-detail">A mensagem segue no grupo normalmente. A sala de moderação serve como fila de alerta.</div>
+          </div>
+        </div>
+
+        <div class="section-title">Exclusão automática (opcional e bem específica)</div>
+        <div class="info">Também podemos definir <strong>alguns tipos bem específicos</strong> de mensagem para serem excluídas automaticamente — por exemplo, certos links ou padrões claros de spam. Isso precisa ser bem delimitado para não apagar mensagens por engano. As regras podem ser <strong>atualizadas sempre que necessário</strong>.</div>
+
+        <div class="value-box">
+          <div class="value-row"><span>Fluxo padrão</span><span>Avisar → equipe decide</span></div>
+          <div class="value-row"><span>Botão na Moderação</span><span>Excluir (sem procurar no chat)</span></div>
+          <div class="value-row"><span>Autoexclusão</span><span>Só tipos bem específicos</span></div>
+          <div class="value-row"><span>Regras</span><span>Atualizáveis quando precisar</span></div>
+        </div>
+
+        <div class="tip">Na implementação, listamos juntos o que vai só para aviso e o que (se houver) pode ser apagado na hora — com critérios bem claros.</div>
+
+        <div class="notes-box" data-notes="step-3">
+          <p class="notes-label">Suas observações — Moderação</p>
+          <p class="notes-hint">O que quer adicionar, alterar ou esclarecer nesta página? (ex.: o que poderia ser apagado automaticamente)</p>
+          <textarea class="notes-area" placeholder="Escreva aqui…"></textarea>
+          <p class="notes-save-hint">Salvo automaticamente neste navegador.</p>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step-content" id="step-4">
+        <p class="step-title">Como você pode testar</p>
+        <p class="step-sub">Um grupo demo só para sentir o Telegram</p>
+
+        <div class="section-title">O que você vai ver no demo</div>
+        <div class="action">
+          <div class="action-num">1</div>
+          <div class="action-body">
+            <div class="action-label">Baixar o Telegram (se ainda não tiver)</div>
+            <div class="action-detail">No celular: procure “Telegram” na loja de apps. Cadastre com seu número. É gratuito.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">2</div>
+          <div class="action-body">
+            <div class="action-label">Entrar no grupo demo pelo link ou convite</div>
+            <div class="action-detail">Você recebe um link. Ao abrir, entra no grupo de teste (não é a comunidade oficial ainda).</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">3</div>
+          <div class="action-body">
+            <div class="action-label">Abrir a lista de salas (tópicos)</div>
+            <div class="action-detail">No topo do grupo aparece a lista: Geral, Redes, Envie sua dúvida para a Gabi etc. Toque em uma sala para entrar nela.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">4</div>
+          <div class="action-body">
+            <div class="action-label">Escrever uma mensagem de teste</div>
+            <div class="action-detail">Por exemplo, na sala Redes, cole um @ de Instagram de mentira. Na sala de dúvidas, faça uma pergunta de exemplo. Assim você sente o fluxo real.</div>
+          </div>
+        </div>
+
+        <div class="ok">O demo é só para aprender o formato. A comunidade oficial só nasce depois da sua aprovação e dos ajustes que você pedir.</div>
+        <div class="tip">Se preferir não instalar nada agora, este guia já basta para você comentar a ideia. O demo fica para quando quiser “ver com os olhos”.</div>
+
+        <div class="notes-box" data-notes="step-4">
+          <p class="notes-label">Suas observações — Como testar</p>
+          <p class="notes-hint">O que quer adicionar, alterar ou esclarecer nesta página?</p>
+          <textarea class="notes-area" placeholder="Escreva aqui…"></textarea>
+          <p class="notes-save-hint">Salvo automaticamente neste navegador.</p>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step-content" id="step-5">
+        <p class="step-title">Sugestões, observações e dúvidas</p>
+        <p class="step-sub">Espaço livre para o seu retorno sobre o plano</p>
+
+        <div class="info">Use este espaço para reunir tudo o que quiser comentar: o que gostou, o que mudaria, dúvidas e ideias novas. Se preferiu anotar em cada aba, pode copiar para cá ou enviar as anotações de volta como estiver mais fácil.</div>
+
+        <div class="section-title">Perguntas que podem ajudar</div>
+        <div class="action">
+          <div class="action-num">1</div>
+          <div class="action-body">
+            <div class="action-label">A ideia faz sentido no geral?</div>
+            <div class="action-detail">Sim / sim com ajustes / não é o caminho.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">2</div>
+          <div class="action-body">
+            <div class="action-label">O que mudaria?</div>
+            <div class="action-detail">Nomes das salas, tom da sala “Envie sua dúvida para a Gabi”, redes, regras, quem pode ser admin etc.</div>
+          </div>
+        </div>
+        <div class="action">
+          <div class="action-num">3</div>
+          <div class="action-body">
+            <div class="action-label">Quer o grupo demo?</div>
+            <div class="action-detail">Se sim, criamos o grupo de teste e enviamos o link — sem lançar para o público.</div>
+          </div>
+        </div>
+
+        <div class="notes-box" data-notes="step-5">
+          <p class="notes-label">Seu retorno</p>
+          <p class="notes-hint">Sugestões, observações e dúvidas — escreva à vontade.</p>
+          <textarea class="notes-area tall" placeholder="Escreva aqui o seu retorno completo…"></textarea>
+          <p class="notes-save-hint">Salvo automaticamente neste navegador. Para enviar de volta, copie o texto e cole na conversa / e-mail.</p>
+        </div>
+
+        <div class="ok" style="margin-top:1rem">Nada é publicado para mil pessoas sem o seu “pode ir”. Este documento é a conversa inicial — no seu tempo.</div>
+      </div>
+
+      <div class="nav-bottom">
+        <button type="button" class="nav-btn" id="btn-prev" onclick="navigate(-1)" style="visibility:hidden">← Anterior</button>
+        <span id="step-counter">Visão geral</span>
+        <button type="button" class="nav-btn next" id="btn-next" onclick="navigate(1)">Próximo →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const steps = [
+      'Visão geral',
+      'O que é',
+      'Salas',
+      'Moderação',
+      'Como testar',
+      'Sugestões'
+    ];
+    let cur = 0;
+    const total = steps.length;
+    const NOTES_KEY = 'comunidade-psi-plano-notes-v1';
+
+    function loadNotes() {
+      try {
+        return JSON.parse(localStorage.getItem(NOTES_KEY) || '{}');
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveNote(id, value) {
+      const all = loadNotes();
+      all[id] = value;
+      localStorage.setItem(NOTES_KEY, JSON.stringify(all));
+    }
+
+    function initNotes() {
+      const all = loadNotes();
+      document.querySelectorAll('.notes-box').forEach(function (box) {
+        const id = box.getAttribute('data-notes');
+        const area = box.querySelector('.notes-area');
+        if (!area || !id) return;
+        if (all[id]) area.value = all[id];
+        area.addEventListener('input', function () {
+          saveNote(id, area.value);
+        });
+      });
+    }
+
+    function buildProgress() {
+      const p = document.getElementById('progress');
+      p.innerHTML = '';
+      for (let i = 0; i < total; i++) {
+        const d = document.createElement('div');
+        d.className = 'progress-dot' + (i <= cur ? ' done' : '');
+        p.appendChild(d);
+      }
+    }
+
+    function goTo(n) {
+      document.getElementById('step-' + cur).classList.remove('active');
+      document.querySelectorAll('.step-btn')[cur].classList.remove('active');
+      cur = n;
+      document.getElementById('step-' + cur).classList.add('active');
+      document.querySelectorAll('.step-btn')[cur].classList.add('active');
+      document.getElementById('btn-prev').style.visibility = cur === 0 ? 'hidden' : 'visible';
+      document.getElementById('btn-next').style.visibility = cur === total - 1 ? 'hidden' : 'visible';
+      document.getElementById('step-counter').textContent = steps[cur] + ' · ' + (cur + 1) + '/' + total;
+      buildProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function navigate(dir) {
+      if (cur + dir >= 0 && cur + dir < total) goTo(cur + dir);
+    }
+
+    buildProgress();
+    initNotes();
+    document.getElementById('step-counter').textContent = steps[0] + ' · 1/' + total;
+  </script>
+</body>
+</html>
