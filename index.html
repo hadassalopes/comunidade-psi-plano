@@ -253,6 +253,37 @@
       margin: 6px 0 0;
     }
 
+    .send-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .send-btn {
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: var(--border-radius-md);
+      border: 0.5px solid var(--color-border-success);
+      background: var(--color-background-success);
+      color: var(--color-text-success);
+      cursor: pointer;
+    }
+    .send-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .send-status {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+      flex: 1;
+      min-width: 180px;
+    }
+    .send-status.ok { color: var(--color-text-success); }
+    .send-status.err { color: #a33; }
+
     .nav-bottom {
       display: flex;
       justify-content: space-between;
@@ -603,7 +634,7 @@
         <p class="step-title">Sugestões, observações e dúvidas</p>
         <p class="step-sub">Espaço livre para o seu retorno sobre o plano</p>
 
-        <div class="info">Use este espaço para reunir tudo o que quiser comentar: o que gostou, o que mudaria, dúvidas e ideias novas. Se preferiu anotar em cada aba, pode copiar para cá ou enviar as anotações de volta como estiver mais fácil.</div>
+        <div class="info">Use este espaço para reunir tudo o que quiser comentar: o que gostou, o que mudaria, dúvidas e ideias novas. Ao clicar em <strong>Enviar</strong>, o texto desta página e as observações das outras abas vão para a Hadassa.</div>
 
         <div class="section-title">Perguntas que podem ajudar</div>
         <div class="action">
@@ -631,8 +662,13 @@
         <div class="notes-box" data-notes="step-5">
           <p class="notes-label">Seu retorno</p>
           <p class="notes-hint">Sugestões, observações e dúvidas — escreva à vontade.</p>
-          <textarea class="notes-area tall" placeholder="Escreva aqui o seu retorno completo…"></textarea>
-          <p class="notes-save-hint">Salvo automaticamente neste navegador. Para enviar de volta, copie o texto e cole na conversa / e-mail.</p>
+          <textarea class="notes-area tall" id="sugestoes-principal" placeholder="Escreva aqui o seu retorno completo…"></textarea>
+          <p class="notes-save-hint">Salvo automaticamente neste navegador até você enviar.</p>
+        </div>
+
+        <div class="send-row">
+          <button type="button" class="send-btn" id="btn-enviar" onclick="enviarSugestoes()">Enviar</button>
+          <span class="send-status" id="send-status" aria-live="polite"></span>
         </div>
 
         <div class="ok" style="margin-top:1rem">Nada é publicado para mil pessoas sem o seu “pode ir”. Este documento é a conversa inicial — no seu tempo.</div>
@@ -658,6 +694,15 @@
     let cur = 0;
     const total = steps.length;
     const NOTES_KEY = 'comunidade-psi-plano-notes-v1';
+    const DESTINO_EMAIL = 'hadassavieira@gmail.com';
+    const NOTE_LABELS = {
+      'step-0': 'Visão geral',
+      'step-1': 'O que é',
+      'step-2': 'Salas',
+      'step-3': 'Moderação',
+      'step-4': 'Como testar',
+      'step-5': 'Sugestões (retorno principal)'
+    };
 
     function loadNotes() {
       try {
@@ -673,6 +718,15 @@
       localStorage.setItem(NOTES_KEY, JSON.stringify(all));
     }
 
+    function syncNotesFromDom() {
+      document.querySelectorAll('.notes-box').forEach(function (box) {
+        const id = box.getAttribute('data-notes');
+        const area = box.querySelector('.notes-area');
+        if (!area || !id) return;
+        saveNote(id, area.value);
+      });
+    }
+
     function initNotes() {
       const all = loadNotes();
       document.querySelectorAll('.notes-box').forEach(function (box) {
@@ -684,6 +738,81 @@
           saveNote(id, area.value);
         });
       });
+    }
+
+    function montarTextoEnvio() {
+      syncNotesFromDom();
+      const all = loadNotes();
+      const agora = new Date().toLocaleString('pt-BR');
+      let texto = 'Sugestões — Comunidade Psi no Telegram\n';
+      texto += 'Enviado em: ' + agora + '\n';
+      texto += '----------------------------------------\n\n';
+
+      const principal = (all['step-5'] || '').trim();
+      texto += '## Retorno principal (aba Sugestões)\n';
+      texto += (principal || '(vazio)') + '\n\n';
+
+      texto += '## Observações por aba\n\n';
+      Object.keys(NOTE_LABELS).forEach(function (key) {
+        if (key === 'step-5') return;
+        const val = (all[key] || '').trim();
+        if (!val) return;
+        texto += '### ' + NOTE_LABELS[key] + '\n' + val + '\n\n';
+      });
+
+      return texto.trim();
+    }
+
+    function setSendStatus(msg, type) {
+      const el = document.getElementById('send-status');
+      el.textContent = msg;
+      el.className = 'send-status' + (type ? ' ' + type : '');
+    }
+
+    function enviarSugestoes() {
+      const texto = montarTextoEnvio();
+      const principal = (loadNotes()['step-5'] || '').trim();
+      const outras = Object.keys(NOTE_LABELS).some(function (k) {
+        return k !== 'step-5' && (loadNotes()[k] || '').trim();
+      });
+
+      if (!principal && !outras) {
+        setSendStatus('Escreva algo nas sugestões (ou nas observações das abas) antes de enviar.', 'err');
+        return;
+      }
+
+      const btn = document.getElementById('btn-enviar');
+      btn.disabled = true;
+      setSendStatus('Enviando…', '');
+
+      fetch('https://formsubmit.co/ajax/' + DESTINO_EMAIL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          name: 'Gabi — Comunidade Psi',
+          _subject: 'Sugestões do plano Comunidade Psi (Telegram)',
+          message: texto,
+          _template: 'table',
+          _captcha: 'false'
+        })
+      })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+          if (result.ok || (result.data && result.data.success)) {
+            setSendStatus('Enviado! A Hadassa vai receber no e-mail. Obrigada.', 'ok');
+          } else {
+            throw new Error((result.data && result.data.message) || 'Falha no envio');
+          }
+        })
+        .catch(function () {
+          setSendStatus('Não foi possível enviar agora. Tente de novo em instantes ou copie o texto e envie por WhatsApp/e-mail.', 'err');
+        })
+        .finally(function () {
+          btn.disabled = false;
+        });
     }
 
     function buildProgress() {
